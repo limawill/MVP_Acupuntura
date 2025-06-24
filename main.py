@@ -1,5 +1,10 @@
-from src.gui.tela_inicial import Application
-from src.tools.setup_folders import SetupFoldersError
+import os
+from dotenv import load_dotenv
+from mvp_acupuntura.gui.tela_inicial import Application
+from mvp_acupuntura.tools.transcricao import TranscricaoAudio
+from mvp_acupuntura.tools.setup_folders import SetupFoldersError
+
+load_dotenv()
 
 
 def main():
@@ -8,15 +13,16 @@ def main():
     """
     setup = SetupFoldersError()
     tela = Application()
+    transcricao = TranscricaoAudio()
 
     # Check if the project structure is correct
-    if not setup.verifica_estutura():
-        print("Project structure is incorrect. Please check the setup.")
-        return
+    # if not setup.verifica_estutura():
+    #    print("Project structure is incorrect. Please check the setup.")
+    #    return
 
     # Proceed with the rest of the application logic
-    print("Project structure is correct. Proceeding with the application...")
-    tela.mainloop()
+    # tela.mainloop()
+    transcricao.carregar_modelo()
 
 
 if __name__ == "__main__":
