@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Plano de Projeto - MVP IA para Acupuntura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 2rem;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    code {
+      background-color: #e8e8e8;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-size: 0.95em;
+    }
+    pre {
+      background: #eee;
+      padding: 1em;
+      overflow-x: auto;
+      border-left: 4px solid #ccc;
+    }
+    .check {
+      color: green;
+      font-weight: bold;
+    }
+    .warn {
+      color: #d35400;
+      font-weight: bold;
+    }
+    ul {
+      margin-top: 0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    thead {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Plano de Projeto - MVP com IA para Acupuntura</h1>
+
+  <h2>🎯 Objetivo Geral</h2>
+  <p>Criar uma aplicação local em Python para gravação de sessões entre acupunturista e paciente, com transcrição automática, separação por falante (diarização) e organização da informação em ficha clínica.</p>
+
+  <h2>🧱 Etapas do Projeto</h2>
+
+  <h3>✅ Etapa 1 – Estrutura Inicial do Projeto</h3>
+  <p>Organizar diretórios e arquivos:</p>
+  <pre><code>acupuntura_mvp/
+├── audio/               # Áudios gravados
+├── transcricao/         # Transcrições brutas
+├── output/              # Fichas geradas
+├── gui/                 # Código da interface gráfica
+├── models/              # Modelos e LLMs
+├── scripts/             # Utilitários
+├── requirements.txt     # Dependências
+└── main.py              # Script principal</code></pre>
+
+  <h3>✅ Etapa 2 – Interface Gráfica com Gravação, Pausa e Retomada</h3>
+  <p><span class="check">Nova etapa!</span> Interface Tkinter simples e amigável com:</p>
+  <ul>
+    <li>Campo para nome do paciente</li>
+    <li>Botões: 🎤 Iniciar, ⏸️ Pausar, ▶️ Retomar, ⏹️ Parar</li>
+    <li>Status: "Gravando...", "Pausado", tempo corrido</li>
+  </ul>
+  <p><strong>Lógica:</strong> cada trecho entre Iniciar e Pausar é salvo separadamente. Após o clique em Parar, todos são concatenados em um único <code>.wav</code>.</p>
+
+  <h3>✅ Etapa 3 – Transcrição com Whisper (com instalação)</h3>
+  <ul>
+    <li><strong>Instalar:</strong>
+      <pre><code>pip install git+https://github.com/openai/whisper.git</code></pre>
+    </li>
+    <li><strong>Requer:</strong> Python 3.8+, Git, ffmpeg (<code>sudo apt install ffmpeg</code>)</li>
+    <li><strong>Executar:</strong>
+      <pre><code>whisper audio/arquivo.wav --language Portuguese --model medium</code></pre>
+    </li>
+    <li>Resultado: arquivos <code>.txt</code>, <code>.srt</code>, <code>.json</code> na mesma pasta</li>
+  </ul>
+
+  <h3>✅ Etapa 4 – Diarização de Falantes com pyannote.audio (com instalação)</h3>
+  <ul>
+    <li><strong>Instalar:</strong>
+      <pre><code>pip install pyannote.audio</code></pre>
+    </li>
+    <li><strong>Pré-requisitos:</strong> conta na Hugging Face + token + <code>huggingface-cli login</code></li>
+    <li><strong>Exemplo:</strong>
+      <pre><code>from pyannote.audio import Pipeline
+pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token="SEU_TOKEN")
+diarization = pipeline("audio/arquivo.wav")
+with open("transcricao/arquivo.rttm", "w") as f:
+    diarization.write_rttm(f)</code></pre>
+    </li>
+    <li>Saída: segmentos com falantes (speaker_1, speaker_2)</li>
+  </ul>
+
+  <h3>✅ Etapa 5 – Organização da Ficha Clínica</h3>
+  <p>Transformar a transcrição em formato estruturado:</p>
+  <pre><code>{
+  "nome": "Pedro Silva",
+  "data": "2025-06-22",
+  "queixa_principal": "Dores nas costas",
+  "respostas_do_paciente": [...],
+  "observacoes": "Paciente com histórico de estresse."
+}</code></pre>
+
+  <h3>✅ Etapa 6 – (Opcional) Resumo com LLM</h3>
+  <ul>
+    <li>Usar LLM local (Ollama, llama.cpp) ou GPT via API</li>
+    <li><strong>Prompt sugerido:</strong>
+      <blockquote>Com base na transcrição abaixo, identifique os principais sintomas, queixas e respostas do paciente, e gere um resumo clínico.</blockquote>
+    </li>
+  </ul>
+
+  <h3>✅ Etapa 7 – Exportação</h3>
+  <ul>
+    <li>Gerar PDF, Markdown ou JSON com a ficha</li>
+    <li>Ferramentas: <code>fpdf</code>, <code>reportlab</code>, <code>json</code></li>
+  </ul>
+
+  <h2>🧰 Stack Recomendada</h2>
+  <table>
+    <thead>
+      <tr><th>Etapa</th><th>Ferramenta</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Interface</td><td><code>Tkinter</code></td></tr>
+      <tr><td>Áudio</td><td><code>sounddevice</code>, <code>numpy</code>, <code>scipy</code></td></tr>
+      <tr><td>Transcrição</td><td><code>Whisper</code></td></tr>
+      <tr><td>Diarização</td><td><code>pyannote.audio</code></td></tr>
+      <tr><td>LLM</td><td>GPT-4, Mistral, Ollama</td></tr>
+      <tr><td>Exportação</td><td><code>fpdf</code>, <code>reportlab</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔍 Termos para Pesquisa</h2>
+  <ul>
+    <li><strong>"Tkinter GUI Python passo a passo"</strong></li>
+    <li><strong>"Python gravação de áudio com pausa"</strong></li>
+    <li><strong>"Whisper transcrição português"</strong></li>
+    <li><strong>"pyannote diarization speaker separation"</strong></li>
+    <li><strong>"Python JSON to PDF"</strong></li>
+    <li><strong>"LLM summarization local Ollama llama.cpp"</strong></li>
+  </ul>
+
+  <h2>📌 Fluxo Geral do MVP</h2>
+  <pre><code>[GUI] → Grava .WAV → Transcreve (Whisper) → Diariza (pyannote) → Organiza Ficha → (LLM opcional) → Exporta</code></pre>
+</body>
+</html>
