@@ -1,63 +1,77 @@
 import os
 import whisper
+import time
+from mvp_acupuntura.gui.loading_screen import LoadingScreen
 from dotenv import load_dotenv
 
 
 class TranscricaoAudio:
     """
     Classe para transcrição de áudio usando o modelo Whisper.
-
-    A classe carrega o modelo Whisper e fornece métodos para transcrever arquivos de áudio.
-
-    Notas:
-        - O modelo Whisper deve ser instalado via pip: `pip install git+
     """
 
     def __init__(self):
-        """
-        Inicializa a classe e carrega o modelo Whisper.
-
-        O modelo é carregado na inicialização da classe, permitindo que seja usado
-        imediatamente após a instância ser criada.
-        """
-        self.model = "medium"
-
-        if not self.model:
-            raise ValueError("O modelo Whisper não está definido no arquivo .env.")
-        self.folder_audio = os.getenv("FOLDER_AUDIO")
-        if not self.folder_audio:
-            raise ValueError("A pasta de áudio não está definida no arquivo .env.")
+        load_dotenv()
+        self.model_name = os.getenv("WHISPER_MODEL", "small")
+        self.folder_audio = os.getenv("FOLDER_AUDIO", "audio")
         self.language = os.getenv("WHISPER_LANGUAGE", "pt")
+        self.destino_file = "transcription"
+        self.model = None
+        self.loading_screen = None
+
+        if not self.model_name:
+            raise ValueError("O modelo Whisper não está definido no .env.")
+        if not self.folder_audio:
+            raise ValueError("A pasta de áudio não está definida no .env.")
 
     def carregar_modelo(self):
-        """
-        Carrega o modelo Whisper.
+        """Cria a janela de carregamento e inicia a transcrição."""
+        self.loading_screen = LoadingScreen(transcritor=self)
+        self.loading_screen.iniciar_transcricao()
+        self.loading_screen.mainloop()
 
-        O modelo pode ser 'tiny', 'base', 'small', 'medium' ou 'large'.
-        O tamanho do modelo afeta a precisão e os recursos necessários.
-        """
-        print("Carregando o modelo Whisper...")
-        print(f"Modelo Whisper selecionado: {self.model}")
-        model = whisper.load_model(self.model)
+    def transcrever_audio(self):
+        """Transcreve o áudio e atualiza a barra de progresso."""
+
+        def progress_callback(valor, mensagem):
+            if self.loading_screen:
+                self.loading_screen.atualizar_progresso(valor, mensagem)
+
+        # Carrega modelo Whisper
+        if not self.model:
+            progress_callback(10, "Carregando modelo Whisper...")
+            time.sleep(1)
+            self.model = whisper.load_model(self.model_name)
+            progress_callback(30, "Modelo carregado.")
+
+        # Verifica arquivos de áudio
         list_audio = [f for f in os.listdir(self.folder_audio) if f.endswith(".wav")]
-        print(f"Arquivos de áudio encontrados: {list_audio}")
-
         if not list_audio or len(list_audio) > 1:
-            print("Nenhum arquivo de áudio encontrado ou compactação não ocorreu.")
+            progress_callback(0, "Erro: Nenhum ou múltiplos arquivos encontrados.")
             return None
 
-        audio_filename_to_transcribe = list_audio[0]
-        # Use os.path.join para criar o caminho completo
-        full_audio_file_path = os.path.join(
-            self.folder_audio, audio_filename_to_transcribe
-        )
+        audio_file = os.path.join(self.folder_audio, list_audio[0])
+        progress_callback(40, "Iniciando transcrição...")
 
-        print(f"Transcrevendo o áudio de: {full_audio_file_path}...")
+        result = self.model.transcribe(audio_file, language=self.language, verbose=True)
 
-        # whisper audio/arquivo.wav --language Portuguese --model medium
-        result = model.transcribe(full_audio_file_path, language="pt", verbose=True)
+        # Simula progresso visual
+        total_steps = 6
+        for i in range(total_steps):
+            time.sleep(1)
+            progress_value = 40 + ((i + 1) * (60 // total_steps))
+            progress_callback(
+                progress_value, f"Transcrevendo... ({i + 1}/{total_steps})"
+            )
 
-        # 4. Imprimir a transcrição
-        print("\n--- Transcrição ---")
-        print(result["text"])
-        print("-------------------\n")
+        progress_callback(100, "Transcrição concluída!")
+
+        # Salva resultado
+        os.makedirs(self.destino_file, exist_ok=True)
+        nome_txt = os.path.splitext(list_audio[0])[0] + ".txt"
+        caminho_txt = os.path.join(self.destino_file, nome_txt)
+        with open(caminho_txt, "w", encoding="utf-8") as f:
+            f.write(result["text"])
+
+        print(f"[💾] Transcrição salva em: {caminho_txt}")
+        return result["text"]

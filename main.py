@@ -11,8 +11,8 @@ def main():
     """
     Main function to set up the project structure.
     """
-    setup = SetupFoldersError()
-    tela = Application()
+    # setup = SetupFoldersError()
+    # tela = Application()
     transcricao = TranscricaoAudio()
 
     # Check if the project structure is correct
