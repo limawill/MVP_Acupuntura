@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 class SetupSystem:
 
-    def clear_files_audio(self, list_files: list, output_dir: str) -> None:
+    def clear_files_audio(self, list_files: list) -> None:
         """
         Limpa os arquivos de áudio especificados na lista.
 
@@ -13,7 +13,7 @@ class SetupSystem:
             list_files (list): Lista de caminhos de arquivos de áudio a serem removidos.
         """
         for arquivo in list_files:
-            caminho_arquivo = os.path.join(output_dir, arquivo)
+            caminho_arquivo = os.path.join(arquivo)
             try:
                 os.remove(caminho_arquivo)
                 print(f"[🗑️] Arquivo {arquivo} apagado.")

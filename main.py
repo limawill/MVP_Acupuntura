@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from src.gui.tela_inicial import Application
 from src.tools.setup_folders import SetupFolders
 
-# from mvp_acupuntura.tools.transcricao_whisperx import TranscricaoAudio
-# from mvp_acupuntura.tools.transcricao_simples import TranscricaoAudioSimples
+# from src.tools.transcricao_whisperx import TranscricaoAudio
+# from src.tools.transcricao_simples import TranscricaoAudioSimples
 
 
 load_dotenv()
@@ -24,7 +24,7 @@ def main():
         return
 
     # Proceed with the rest of the application logic
-    # tela.mainloop()
+    tela.mainloop()
     # transcricao.carregar_modelo()
 
 

@@ -81,7 +81,7 @@ class SetupFolders:
 
         for folder in folders:
             # Criar pasta na raiz do projeto (não dentro de mvp_acupuntura/)
-            folder_path = os.path.normpath("src/" + folder)
+            folder_path = os.path.normpath(folder)
 
             # Criar pasta se não existir
             if not os.path.exists(folder_path):

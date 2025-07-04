@@ -126,6 +126,7 @@ class Application(tk.Tk):
         self.parar_tempo()
         # Desabilitar "Pausar" e habilitar "Retomar"
         self.btn_pausar.config(state="disabled")
+        self.btn_parar.config(state="disabled")
         self.btn_retomar.config(state="normal")
 
     def retomar_gravacao(self):

@@ -1,4 +1,5 @@
 import os
+from pydub import AudioSegment
 import numpy as np
 import sounddevice as sd
 from datetime import datetime
@@ -87,7 +88,7 @@ class GravadorAudio:
         self._salvar_audio()
         self.audio_data = []  # Limpar dados após salvar
         print("[⏹️] Gravação parada.")
-        self._combinar_audio(nome_paciente)
+        # self._combinar_audio(nome_paciente)
 
     def _salvar_audio(self):
         if not self.audio_data:
@@ -110,53 +111,12 @@ class GravadorAudio:
         """
         Combina dois arrays de áudio.
         """
-        pre_audio = PreprocessadorAudio(cortar_silencios=True, realce_vocal=True)
-
-        list_audio = [f for f in os.listdir(self.output_dir) if f.endswith(".wav")]
-
-        if len(list_audio) < 2:
-            print(
-                "[!] Não há áudios suficientes para combinar (mínimo 2 arquivos WAV)."
-            )
-            pre_audio.processar(os.path.join(self.output_dir, list_audio[0]))
-            return None
-
-        try:
-            # Carregar o primeiro arquivo para obter a taxa de amostragem de referência
-            primeiro_arquivo = os.path.join(self.output_dir, list_audio[0])
-            taxa_amostragem, primeiro_audio = wavfile.read(primeiro_arquivo)
-            audio_combinado = [primeiro_audio]
-
-            # Carregar os demais arquivos e verificar compatibilidade
-            for arquivo in list_audio[1:]:
-                caminho_arquivo = os.path.join(self.output_dir, arquivo)
-                fs, audio_data = wavfile.read(caminho_arquivo)
-                if fs != taxa_amostragem:
-                    print(
-                        f"[!] Erro: Taxa de amostragem de {arquivo} ({fs}) difere da referência ({taxa_amostragem})."
-                    )
-                    return None
-                audio_combinado.append(audio_data)
-
-            # Concatenar os arrays de áudio
-            audio_final = np.concatenate(audio_combinado, axis=0)
-
-            # Gerar nome do arquivo combinado com timestamp
-            timestamp = datetime.now().strftime("%Y%m%d")
-            nome_arquivo_combinado = f"{nome_paciente}_{timestamp}.wav"
-            caminho_arquivo_combinado = os.path.join(
-                self.output_dir, nome_arquivo_combinado
-            )
-
-            # Salvar o áudio combinado
-            wavfile.write(caminho_arquivo_combinado, taxa_amostragem, audio_final)
-            print(f"[💾] Áudio combinado salvo em: {caminho_arquivo_combinado}")
-
-            system_control.clear_files_audio(list_audio, self.output_dir)
-
-            caminho_arquivo_combinado = pre_audio.processar(caminho_arquivo_combinado)
-            return caminho_arquivo_combinado
-
-        except Exception as e:
-            print(f"[!] Erro ao combinar áudios: {e}")
-            return None
+        # pre_audio = PreprocessadorAudio()
+        arquivos = [
+            os.path.join(self.output_dir, f)
+            for f in os.listdir(self.output_dir)
+            if f.endswith(".wav")
+        ]
+        print(arquivos)
+        arquivos.sort()  # Ordenar os arquivos para garantir a ordem correta
+        print(arquivos)
