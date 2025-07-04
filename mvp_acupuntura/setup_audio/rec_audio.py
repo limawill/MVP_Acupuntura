@@ -3,6 +3,8 @@ import numpy as np
 import sounddevice as sd
 from datetime import datetime
 import scipy.io.wavfile as wavfile
+from .preprocessador_audio import PreprocessadorAudio
+from ..tools.tools_system import SetupSystem
 from mvp_acupuntura.tools.tools_system import SetupSystem
 
 
@@ -27,7 +29,7 @@ class GravadorAudio:
             print("[!] Já está gravando.")
             return
 
-        self.nome_paciente = nome_paciente
+        self.nome_paciente = system_control.text_underline(nome_paciente)
         self.audio_data = []
         self.gravando = True
 
@@ -112,12 +114,15 @@ class GravadorAudio:
         """
         Combina dois arrays de áudio.
         """
+        pre_audio = PreprocessadorAudio(cortar_silencios=True, realce_vocal=True)
+
         list_audio = [f for f in os.listdir(self.output_dir) if f.endswith(".wav")]
 
         if len(list_audio) < 2:
             print(
                 "[!] Não há áudios suficientes para combinar (mínimo 2 arquivos WAV)."
             )
+            pre_audio.processar(os.path.join(self.output_dir, list_audio[0]))
             return None
 
         try:
@@ -152,6 +157,8 @@ class GravadorAudio:
             print(f"[💾] Áudio combinado salvo em: {caminho_arquivo_combinado}")
 
             system_control.clear_files_audio(list_audio, self.output_dir)
+
+            caminho_arquivo_combinado = pre_audio.processar(caminho_arquivo_combinado)
             return caminho_arquivo_combinado
 
         except Exception as e:

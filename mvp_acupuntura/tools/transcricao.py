@@ -1,13 +1,13 @@
 import os
-import whisper
 import time
-from mvp_acupuntura.gui.loading_screen import LoadingScreen
+import whisper
 from dotenv import load_dotenv
+from mvp_acupuntura.gui.loading_screen import LoadingScreen
 
 
 class TranscricaoAudio:
     """
-    Classe para transcrição de áudio usando o modelo Whisper.
+    Classe para transcrição de áudio usando o modelo WhisperX com diarização.
     """
 
     def __init__(self):
@@ -15,8 +15,10 @@ class TranscricaoAudio:
         self.model_name = os.getenv("WHISPER_MODEL", "small")
         self.folder_audio = os.getenv("FOLDER_AUDIO", "audio")
         self.language = os.getenv("WHISPER_LANGUAGE", "pt")
-        self.destino_file = "transcription"
+        self.destino_file = "transcricao"
         self.model = None
+        self.align_model = None
+        self.diarize_model = None
         self.loading_screen = None
 
         if not self.model_name:

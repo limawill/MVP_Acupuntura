@@ -81,7 +81,7 @@ class SetupFoldersError:
 
         for folder in folders:
             # Verificar se o caminho é absoluto ou relativo
-            folder_path = os.path.normpath(folder)
+            folder_path = os.path.normpath("mvp_acupuntura/" + folder)
 
             # Criar pasta se não existir
             if not os.path.exists(folder_path):

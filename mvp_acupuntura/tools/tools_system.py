@@ -19,3 +19,15 @@ class SetupSystem:
                 print(f"[🗑️] Arquivo {arquivo} apagado.")
             except Exception as e:
                 print(f"[!] Erro ao apagar {arquivo}: {e}")
+
+    def text_underline(self, text: str) -> str:
+        """
+        Substitui espaços por underline em uma string.
+
+        Args:
+            text (str): Texto original.
+
+        Returns:
+            str: Texto com espaços substituídos por underlines.
+        """
+        return text.replace(" ", "_")

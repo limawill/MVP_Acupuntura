@@ -153,3 +153,5 @@ class Application(tk.Tk):
         self.btn_retomar.config(state="disabled")
         self.btn_parar.config(state="disabled")
         self.nome_entry.delete(0, tk.END)
+        # Fechar a janela
+        self.destroy()
