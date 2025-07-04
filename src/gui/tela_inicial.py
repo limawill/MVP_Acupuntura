@@ -1,6 +1,6 @@
 import platform
 import tkinter as tk
-from mvp_acupuntura.setup_audio.rec_audio import GravadorAudio
+from src.setup_audio.rec_audio import GravadorAudio
 
 
 class Application(tk.Tk):

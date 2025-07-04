@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from mvp_acupuntura.gui.tela_inicial import Application
-from mvp_acupuntura.tools.setup_folders import SetupFoldersError
+from src.gui.tela_inicial import Application
+from src.tools.setup_folders import SetupFolders
 
 # from mvp_acupuntura.tools.transcricao_whisperx import TranscricaoAudio
 # from mvp_acupuntura.tools.transcricao_simples import TranscricaoAudioSimples
@@ -14,7 +14,7 @@ def main():
     """
     Main function to set up the project structure.
     """
-    setup = SetupFoldersError()
+    setup = SetupFolders()
     tela = Application()
     # transcricao = TranscricaoAudio()
 
@@ -24,7 +24,7 @@ def main():
         return
 
     # Proceed with the rest of the application logic
-    tela.mainloop()
+    # tela.mainloop()
     # transcricao.carregar_modelo()
 
 

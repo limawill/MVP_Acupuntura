@@ -3,7 +3,7 @@ import shutil
 from dotenv import load_dotenv
 
 
-class SetupFoldersError:
+class SetupFolders:
     """
     Classe responsável por configurar e validar a estrutura de pastas do sistema.
 
@@ -50,7 +50,7 @@ class SetupFoldersError:
             podem ocorrer durante operações de I/O.
 
         Exemplo de uso:
-            setup = SetupFoldersError()
+            setup = SetupFolders()
             sucesso = setup.verifica_estutura()
             if sucesso:
                 print("Sistema pronto para iniciar")
@@ -80,8 +80,8 @@ class SetupFoldersError:
         folders = [f.strip() for f in folders_str.split(",") if f.strip()]
 
         for folder in folders:
-            # Verificar se o caminho é absoluto ou relativo
-            folder_path = os.path.normpath("mvp_acupuntura/" + folder)
+            # Criar pasta na raiz do projeto (não dentro de mvp_acupuntura/)
+            folder_path = os.path.normpath("src/" + folder)
 
             # Criar pasta se não existir
             if not os.path.exists(folder_path):

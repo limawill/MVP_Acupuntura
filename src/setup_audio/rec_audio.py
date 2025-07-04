@@ -3,9 +3,8 @@ import numpy as np
 import sounddevice as sd
 from datetime import datetime
 import scipy.io.wavfile as wavfile
-from .preprocessador_audio import PreprocessadorAudio
 from ..tools.tools_system import SetupSystem
-from mvp_acupuntura.tools.tools_system import SetupSystem
+from .preprocessador_audio import PreprocessadorAudio
 
 
 system_control = SetupSystem()
@@ -19,10 +18,7 @@ class GravadorAudio:
         self.audio_data = []
         self.stream = None
         self.nome_paciente = None
-        self.output_dir = "audio"
-
-        # Criar pasta audio se não existir
-        os.makedirs(self.output_dir, exist_ok=True)
+        self.output_dir = os.getenv("FOLDER_AUDIO", "audio")
 
     def iniciar_gravacao(self, nome_paciente: str):
         if self.gravando:
