@@ -4,21 +4,23 @@ import whisperx
 import torch
 from dotenv import load_dotenv
 from pyannote.audio import Pipeline
-from mvp_acupuntura.gui.loading_screen import LoadingScreen
+from src.gui.loading_screen import LoadingScreen
 
 
 class TranscricaoAudio:
     def __init__(self):
         load_dotenv()
         self.model_name = os.getenv("WHISPER_MODEL", "small")
-        self.folder_audio = os.getenv("FOLDER_AUDIO", "audio")
+        self.folder_audio = os.getenv("FOLDER_AUDIO", "src/audio")
         self.language = os.getenv("WHISPER_LANGUAGE", "pt")
-        self.destino_file = "transcricao"
+        self.destino_folder = "src/transcricao"
         self.model = None
         self.align_model = None
         self.diarization_pipeline = None
         self.loading_screen = None
         self.hf_token = os.getenv("HF_TOKEN")
+
+        os.makedirs(self.destino_folder, exist_ok=True)
 
         if not all([self.model_name, self.folder_audio, self.hf_token]):
             raise ValueError("⚠️ Variáveis de ambiente não definidas corretamente.")
@@ -33,198 +35,249 @@ class TranscricaoAudio:
             if self.loading_screen:
                 self.loading_screen.atualizar_progresso(valor, mensagem)
 
-        device = "cpu"
-        compute_type = "int8"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        compute_type = "float16" if device == "cuda" else "int8"
 
         try:
-            # 1. Carrega modelo WhisperX
             progress_callback(10, "Carregando modelo WhisperX...")
             self.model = whisperx.load_model(
                 self.model_name,
                 device=device,
-                compute_type=compute_type
+                compute_type=compute_type,
+                language=self.language,
             )
             progress_callback(20, "Modelo carregado.")
 
-            # Verifica arquivos
-            list_audio = [f for f in os.listdir(self.folder_audio) if f.endswith(".wav")]
-            if not list_audio or len(list_audio) > 1:
-                progress_callback(0, "Erro: Nenhum ou múltiplos arquivos.")
+            progress_callback(25, "Carregando modelo de alinhamento...")
+            self.align_model, self.align_metadata = whisperx.load_align_model(
+                language_code=self.language, device=device
+            )
+            progress_callback(28, "Modelo de alinhamento carregado.")
+
+            progress_callback(30, "Carregando pipeline de diarização...")
+            self.diarization_pipeline = Pipeline.from_pretrained(
+                "pyannote/speaker-diarization", use_auth_token=self.hf_token
+            ).to(torch.device(device))
+            progress_callback(35, "Pipeline de diarização carregado.")
+
+            # Buscar apenas arquivos que terminam com _completo.wav
+            list_audio_files = [
+                f for f in os.listdir(self.folder_audio) 
+                if f.endswith("_completo.wav")
+            ]
+
+            if not list_audio_files:
+                progress_callback(
+                    0, "Erro: Nenhum arquivo _completo.wav encontrado na pasta de áudio."
+                )
+                print("[⚠️] Dica: Certifique-se de que o áudio foi gravado e combinado corretamente.")
                 return None
 
-            audio_file = os.path.join(self.folder_audio, list_audio[0])
+            total_files = len(list_audio_files)
+            print(f"[INFO] Encontrados {total_files} arquivos _completo.wav para processar.")
             
-            # 2. Carrega áudio
-            progress_callback(30, "Carregando áudio...")
-            audio = whisperx.load_audio(audio_file)
+            # Listar arquivos que serão processados
+            if total_files > 0:
+                print("[INFO] Arquivos a serem transcritos:")
+                for i, filename in enumerate(list_audio_files, 1):
+                    print(f"  {i}. {filename}")
+            else:
+                print("[INFO] Nenhum arquivo _completo.wav encontrado.")
+                print("[INFO] Arquivos .wav disponíveis na pasta:")
+                all_wav_files = [
+                    f for f in os.listdir(self.folder_audio) 
+                    if f.endswith(".wav")
+                ]
+                for f in all_wav_files:
+                    print(f"  - {f}")
+                return None
 
-            # 3. Transcrição inicial simplificada
-            progress_callback(40, "Transcrevendo áudio...")
-            result = self.model.transcribe(
-                audio, 
-                batch_size=16,
-                language=self.language
-            )
+            for i, audio_filename in enumerate(list_audio_files):
+                current_file_path = os.path.join(self.folder_audio, audio_filename)
+                progress_prefix = f"[{i + 1}/{total_files}]"
+                print(f"\n{progress_prefix} Processando: {audio_filename}")
 
-            # 4. Alinhamento para melhorar timestamps (opcional)
-            try:
-                progress_callback(50, "Melhorando timestamps...")
-                self.align_model, metadata = whisperx.load_align_model(
-                    language_code=result["language"], 
-                    device=device
+                progress_callback(
+                    40 + int(i * (60 / total_files * 0.1)),
+                    f"{progress_prefix} Carregando áudio...",
                 )
-                
-                result = whisperx.align(
-                    result["segments"], 
-                    self.align_model, 
-                    metadata, 
-                    audio, 
-                    device, 
-                    return_char_alignments=False
-                )
-                progress_callback(55, "Timestamps melhorados.")
-            except Exception as align_error:
-                progress_callback(55, "Alinhamento falhou, continuando...")
-                print(f"[⚠️] Alinhamento falhou: {align_error}")
+                audio = whisperx.load_audio(current_file_path)
 
-            # 5. Diarização com tratamento robusto
-            progress_callback(60, "Diarizando falantes...")
-            try:
-                if not self.diarization_pipeline:
-                    # Usar modelo mais leve e compatível
-                    self.diarization_pipeline = Pipeline.from_pretrained(
-                        "pyannote/speaker-diarization", 
-                        use_auth_token=self.hf_token
+                progress_callback(
+                    40 + int(i * (60 / total_files * 0.2)),
+                    f"{progress_prefix} Transcrevendo áudio...",
+                )
+                result = self.model.transcribe(
+                    audio,
+                    batch_size=16,
+                )
+
+                try:
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.3)),
+                        f"{progress_prefix} Melhorando timestamps...",
                     )
-                
-                # Executar diarização
-                diarization = self.diarization_pipeline(audio_file)
-                
-                # 6. Método alternativo de atribuição de falantes
-                progress_callback(80, "Associando falas manualmente...")
-                
-                # Converter diarização para lista de segmentos
-                diarization_segments = []
-                for turn, _, speaker in diarization.itertracks(yield_label=True):
-                    diarization_segments.append({
-                        'start': turn.start,
-                        'end': turn.end,
-                        'speaker': speaker
-                    })
-                
-                # Atribuir falantes manualmente
-                for segment in result["segments"]:
-                    seg_start = segment["start"]
-                    seg_end = segment["end"]
-                    seg_mid = (seg_start + seg_end) / 2  # Ponto médio do segmento
-                    
-                    best_speaker = "UNKNOWN"
-                    best_overlap = 0
-                    
-                    for dia_seg in diarization_segments:
-                        # Verificar se o ponto médio está dentro do segmento de diarização
-                        if dia_seg['start'] <= seg_mid <= dia_seg['end']:
-                            # Calcular sobreposição
-                            overlap_start = max(seg_start, dia_seg['start'])
-                            overlap_end = min(seg_end, dia_seg['end'])
-                            overlap = max(0, overlap_end - overlap_start)
-                            
-                            if overlap > best_overlap:
-                                best_overlap = overlap
-                                best_speaker = dia_seg['speaker']
-                    
-                    segment["speaker"] = best_speaker
-                
-                progress_callback(90, "Diarização concluída.")
-                
-            except Exception as diarization_error:
-                progress_callback(70, "Diarização falhou, usando segmentação por pausas...")
-                print(f"[⚠️] Diarização falhou: {diarization_error}")
-                
-                # Método alternativo: segmentar por pausas longas
-                self._segmentar_por_pausas(result["segments"])
-                progress_callback(90, "Segmentação por pausas concluída.")
+                    result = whisperx.align(
+                        result["segments"],
+                        self.align_model,
+                        self.align_metadata,
+                        audio,
+                        device,
+                        return_char_alignments=False,
+                    )
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.4)),
+                        f"{progress_prefix} Timestamps melhorados.",
+                    )
+                except Exception as align_error:
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.4)),
+                        f"{progress_prefix} Alinhamento falhou, continuando...",
+                    )
+                    print(
+                        f"[⚠️] Alinhamento falhou para {audio_filename}: {align_error}"
+                    )
 
-            progress_callback(100, "Transcrição finalizada!")
+                progress_callback(
+                    40 + int(i * (60 / total_files * 0.5)),
+                    f"{progress_prefix} Diarizando falantes...",
+                )
+                try:
+                    diarization = self.diarization_pipeline(current_file_path)
 
-            # 7. Salva resultado melhorado
-            self._salvar_transcricao_melhorada(result, list_audio[0])
-            
-            return result
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.7)),
+                        f"{progress_prefix} Associando falas...",
+                    )
+
+                    diarization_segments = []
+                    for turn, _, speaker in diarization.itertracks(yield_label=True):
+                        diarization_segments.append(
+                            {"start": turn.start, "end": turn.end, "speaker": speaker}
+                        )
+
+                    for segment in result["segments"]:
+                        seg_start = segment["start"]
+                        seg_end = segment["end"]
+                        seg_mid = (seg_start + seg_end) / 2
+
+                        best_speaker = "UNKNOWN"
+                        best_overlap = 0
+
+                        for dia_seg in diarization_segments:
+                            if dia_seg["start"] <= seg_mid <= dia_seg["end"]:
+                                overlap_start = max(seg_start, dia_seg["start"])
+                                overlap_end = min(seg_end, dia_seg["end"])
+                                overlap = max(0, overlap_end - overlap_start)
+
+                                if overlap > best_overlap:
+                                    best_overlap = overlap
+                                    best_speaker = dia_seg["speaker"]
+
+                        segment["speaker"] = best_speaker
+
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.8)),
+                        f"{progress_prefix} Diarização concluída.",
+                    )
+
+                except Exception as diarization_error:
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.8)),
+                        f"{progress_prefix} Diarização falhou, usando segmentação...",
+                    )
+                    print(
+                        f"[⚠️] Diarização falhou para {audio_filename}: "
+                        f"{diarization_error}"
+                    )
+
+                    self._segmentar_por_pausas(result["segments"])
+                    progress_callback(
+                        40 + int(i * (60 / total_files * 0.9)),
+                        f"{progress_prefix} Segmentação por pausas concluída.",
+                    )
+
+                progress_callback(
+                    100,
+                    f"{progress_prefix} Transcrição finalizada para {audio_filename}!",
+                )
+
+                self._salvar_transcricao_melhorada(result, audio_filename)
+
+            progress_callback(100, "Todos os arquivos processados!")
+            return True
 
         except Exception as e:
-            progress_callback(0, f"Erro: {str(e)}")
-            print(f"[❌] Erro: {e}")
+            progress_callback(0, f"Erro fatal: {str(e)}")
+            print(f"[❌] Erro fatal: {e}")
             return None
 
-    def _salvar_transcricao_melhorada(self, result, nome_arquivo):
-        """Salva transcrição com melhor formatação e separação."""
-        os.makedirs(self.destino_file, exist_ok=True)
-        nome_txt = os.path.splitext(nome_arquivo)[0] + "_melhorado.txt"
-        caminho_txt = os.path.join(self.destino_file, nome_txt)
+    def _salvar_transcricao_melhorada(self, result, nome_arquivo_original):
+        os.makedirs(self.destino_folder, exist_ok=True)
+        nome_txt = os.path.splitext(nome_arquivo_original)[0] + "_transcrito.txt"
+        caminho_txt = os.path.join(self.destino_folder, nome_txt)
 
         with open(caminho_txt, "w", encoding="utf-8") as f:
             f.write("TRANSCRIÇÃO MELHORADA COM DIARIZAÇÃO\n")
             f.write("=" * 50 + "\n\n")
             f.write("INSTRUÇÕES:\n")
-            f.write("- Cada linha é uma fala separada\n") 
-            f.write("- Pausas maiores que 500ms criam nova linha\n")
+            f.write("- Cada linha é uma fala separada\n")
+            f.write(
+                "- Pausas maiores que 2 segundos podem indicar mudança de falante\n"
+            )
             f.write("- Substitua Speaker_XX pelos nomes reais\n")
             f.write("=" * 50 + "\n\n")
-            
+
             current_speaker = None
-            speaker_counter = {}
-            
+            speaker_map = {}
+
             for segment in result["segments"]:
-                # Mapear speakers para nomes amigáveis
-                original_speaker = segment.get("speaker", "UNKNOWN")
-                if original_speaker not in speaker_counter:
-                    speaker_counter[original_speaker] = f"Pessoa{len(speaker_counter) + 1}"
-                
-                speaker = speaker_counter[original_speaker]
-                
-                # Formatar tempo
+                original_speaker_label = segment.get("speaker", "UNKNOWN")
+
+                if original_speaker_label not in speaker_map:
+                    speaker_map[original_speaker_label] = (
+                        f"Pessoa{len(speaker_map) + 1}"
+                    )
+
+                display_speaker = speaker_map[original_speaker_label]
+
                 start_min = int(segment["start"] // 60)
                 start_sec = int(segment["start"] % 60)
                 end_min = int(segment["end"] // 60)
                 end_sec = int(segment["end"] % 60)
-                
-                timestamp = f"{start_min:02d}:{start_sec:02d}-{end_min:02d}:{end_sec:02d}"
-                
-                # Adicionar separador visual quando muda de falante
-                if current_speaker != speaker:
+
+                timestamp = (
+                    f"{start_min:02d}:{start_sec:02d}-{end_min:02d}:{end_sec:02d}"
+                )
+
+                if current_speaker != display_speaker:
                     if current_speaker is not None:
                         f.write("\n")
-                    f.write(f"--- {speaker} ---\n")
-                    current_speaker = speaker
-                
-                # Escrever fala
+                    f.write(f"--- {display_speaker} ---\n")
+                    current_speaker = display_speaker
+
                 f.write(f"[{timestamp}] {segment['text'].strip()}\n")
-            
-            # Resumo dos falantes
+
             f.write("\n" + "=" * 50 + "\n")
             f.write("RESUMO DOS FALANTES:\n")
-            for original, mapped in speaker_counter.items():
-                f.write(f"{mapped} = {original}\n")
+            for original, mapped in speaker_map.items():
+                f.write(f"  {mapped} = {original}\n")
 
-        print(f"[💾] Transcrição melhorada salva em: {caminho_txt}")
+        print(f"[💾] Transcrição salva em: {caminho_txt}")
 
     def _segmentar_por_pausas(self, segments):
-        """Método alternativo: segmenta falantes baseado em pausas."""
-        current_speaker = "Pessoa1"
-        speaker_counter = 1
-        
+        current_speaker_idx = 1
+        speaker_map = {1: "Pessoa1"}
+
         for i, segment in enumerate(segments):
             if i == 0:
-                segment["speaker"] = current_speaker
+                segment["speaker"] = speaker_map[current_speaker_idx]
                 continue
-            
-            # Calcular pausa entre segmentos
-            pausa = segment["start"] - segments[i-1]["end"]
-            
-            # Se pausa > 2 segundos, provavelmente mudou de falante
+
+            pausa = segment["start"] - segments[i - 1]["end"]
+
             if pausa > 2.0:
-                speaker_counter = 2 if speaker_counter == 1 else 1
-                current_speaker = f"Pessoa{speaker_counter}"
-            
-            segment["speaker"] = current_speaker
+                current_speaker_idx = 2 if current_speaker_idx == 1 else 1
+                if current_speaker_idx not in speaker_map:
+                    speaker_map[current_speaker_idx] = f"Pessoa{current_speaker_idx}"
+            segment["speaker"] = speaker_map[current_speaker_idx]
