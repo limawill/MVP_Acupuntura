@@ -2,9 +2,7 @@ import os
 from dotenv import load_dotenv
 from src.gui.tela_inicial import Application
 from src.tools.setup_folders import SetupFolders
-from src.tools.transcricao_whisperx import TranscricaoAudio
-
-# from src.tools.transcricao_simples import TranscricaoAudioSimples
+from src.tools.transcricao import TranscricaoAudio
 
 
 load_dotenv()
