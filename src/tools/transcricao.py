@@ -1,11 +1,12 @@
 import os
 import time
-import whisperx  # Ainda usamos whisperx para a transcrição otimizada
 import torch
+import logging
+import whisperx
 from dotenv import load_dotenv
-
-# Removendo: from pyannote.audio import Pipeline # Não precisaremos mais para diarização
 from src.gui.loading_screen import LoadingScreen
+
+logger = logging.getLogger(__name__)
 
 
 class TranscricaoAudio:
@@ -63,6 +64,9 @@ class TranscricaoAudio:
                 language=self.language,
             )
             progress_callback(30, "Modelo WhisperX carregado.")
+            logger.info(
+                f"[INFO] Modelo WhisperX '{self.model_name}' carregado com sucesso."
+            )
 
             # Filtrar arquivos que contêm "_completo"
             list_audio_files = [
@@ -76,20 +80,20 @@ class TranscricaoAudio:
                     0,
                     "Erro: Nenhum arquivo .wav com '_completo' encontrado na pasta de áudio.",
                 )
-                print(
-                    "[INFO] Nenhum arquivo .wav com '_completo' encontrado para processar."
+                logger.info(
+                    "Nenhum arquivo .wav com '_completo' encontrado para processar."
                 )
                 return None
 
             total_files = len(list_audio_files)
-            print(
-                f"[INFO] Encontrados {total_files} arquivo(s) com '_completo' para processar."
+            logger.info(
+                f"Encontrados {total_files} arquivo(s) com '_completo' para processar."
             )
 
             for i, audio_filename in enumerate(list_audio_files):
                 current_file_path = os.path.join(self.folder_audio, audio_filename)
                 progress_prefix = f"[{i + 1}/{total_files}]"
-                print(f"\n{progress_prefix} Processando: {audio_filename}")
+                logger.info(f"\n{progress_prefix} Processando: {audio_filename}")
 
                 progress_callback(
                     40 + int(i * (60 / total_files * 0.1)),
@@ -108,7 +112,7 @@ class TranscricaoAudio:
                 )
 
                 # Debug: verificar estrutura do resultado
-                print(f"[DEBUG] Chaves disponíveis no resultado: {list(result.keys())}")
+                logger.debug(f"Chaves disponíveis no resultado: {list(result.keys())}")
 
                 # Não há mais passos de alinhamento ou diarização aqui.
                 # O resultado já contém os 'segments' que precisamos.
@@ -127,7 +131,7 @@ class TranscricaoAudio:
 
         except Exception as e:
             progress_callback(0, f"Erro fatal durante a transcrição: {str(e)}")
-            print(f"[❌] Erro fatal: {e}")
+            logger.error(f"Erro fatal: {e}")
             return None
 
     def _salvar_transcricao_pura(self, result, nome_arquivo_original):
@@ -154,9 +158,9 @@ class TranscricaoAudio:
                     primeiro_seg = (
                         result["segments"][0] if result["segments"] else "Vazio"
                     )
-                    print(f"[DEBUG] Primeiro segmento: {primeiro_seg}")
+                    logger.debug(f"Primeiro segmento: {primeiro_seg}")
             else:
                 f.write("❌ Erro: Resultado não contém 'segments' ou está vazio.")
-                print(f"[DEBUG] Chaves do resultado: {list(result.keys())}")
+                logger.debug(f"Chaves do resultado: {list(result.keys())}")
 
-        print(f"[💾] Transcrição salva em: {caminho_txt}")
+        logger.info(f"Transcrição salva em: {caminho_txt}")

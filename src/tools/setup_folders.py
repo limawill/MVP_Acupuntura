@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 from dotenv import load_dotenv
 
 
@@ -73,7 +74,7 @@ class SetupFolders:
         folders_str = os.getenv("FOLDERS")
 
         if not folders_str:
-            print("Erro: Variável FOLDERS não encontrada no .env")
+            logger.error("Variável FOLDERS não encontrada no .env")
             return False
 
         # Processar a string para lista de pastas
@@ -86,17 +87,17 @@ class SetupFolders:
             # Criar pasta se não existir
             if not os.path.exists(folder_path):
                 os.makedirs(folder_path, exist_ok=True)
-                print(f"Pasta criada: {folder_path}")
+                logger.info(f"Pasta criada: {folder_path}")
                 continue
 
             # Verificar se é um diretório
             if not os.path.isdir(folder_path):
-                print(f"Erro: '{folder_path}' não é um diretório")
+                logger.error(f"Erro: '{folder_path}' não é um diretório")
                 return False
 
             # Limpar pasta se não estiver vazia
             if os.listdir(folder_path):
-                print(f"Limpando pasta: {folder_path}")
+                logger.info(f"Limpando pasta: {folder_path}")
 
                 # Remover todo o conteúdo preservando a pasta
                 for item in os.listdir(folder_path):
@@ -107,7 +108,7 @@ class SetupFolders:
                     elif os.path.isdir(item_path):
                         shutil.rmtree(item_path)
             else:
-                print(f"Pasta já vazia: {folder_path}")
+                logger.info(f"Pasta já vazia: {folder_path}")
 
-        print("Todas as pastas foram verificadas e preparadas")
+        logger.info("Todas as pastas foram verificadas e preparadas")
         return True
