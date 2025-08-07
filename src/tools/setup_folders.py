@@ -3,6 +3,8 @@ import shutil
 import logging
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+
 
 class SetupFolders:
     """

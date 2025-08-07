@@ -1,5 +1,4 @@
 import os
-import time
 import torch
 import logging
 import whisperx
@@ -25,21 +24,24 @@ class TranscricaoAudio:
         self.destino_folder = "src/transcricao"
         self.model = None
         self.loading_screen = None
-        # Removendo: self.hf_token = os.getenv("HF_TOKEN") # Não precisamos mais do token para pyannote
+        self.transcription_success = False  # Atributo para armazenar o resultado
 
         os.makedirs(self.destino_folder, exist_ok=True)
 
-        # Atualizando a validação das variáveis de ambiente
         if not all([self.model_name, self.folder_audio]):
             raise ValueError(
-                "⚠️ Variáveis de ambiente WHISPER_MODEL ou FOLDER_AUDIO não definidas corretamente no .env."
+                "⚠️ Variáveis de ambiente WHISPER_MODEL ou FOLDER_AUDIO não definidas."
             )
 
-    def carregar_modelo(self):
-        """Cria a janela de carregamento e inicia a transcrição."""
+    def carregar_modelo(self, key: str) -> bool:
+        """Inicia a transcrição com a Tela 2 (LoadingScreen) e
+        retorna True se bem-sucedida.
+        """
+        self.key_redis = key
         self.loading_screen = LoadingScreen(transcritor=self)
-        self.loading_screen.iniciar_transcricao()
-        self.loading_screen.mainloop()
+        self.loading_screen.iniciar_transcricao()  # Inicia a transcrição na Tela 2
+        self.loading_screen.mainloop()  # Mostra a Tela 2 na frente da Tela 1
+        return self.transcription_success  # Retorna o resultado após o término
 
     def transcrever_audio(self):
         """
@@ -52,12 +54,11 @@ class TranscricaoAudio:
                 self.loading_screen.atualizar_progresso(valor, mensagem)
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        # Usar float16 para CUDA e int8 para CPU para melhor performance/compatibilidade
         compute_type = "float16" if device == "cuda" else "int8"
 
         try:
             progress_callback(10, "Carregando modelo WhisperX para transcrição...")
-            self.model = whisperx.load_model(  # Ainda usando whisperx para otimização
+            self.model = whisperx.load_model(
                 self.model_name,
                 device=device,
                 compute_type=compute_type,
@@ -68,7 +69,6 @@ class TranscricaoAudio:
                 f"[INFO] Modelo WhisperX '{self.model_name}' carregado com sucesso."
             )
 
-            # Filtrar arquivos que contêm "_completo"
             list_audio_files = [
                 f
                 for f in os.listdir(self.folder_audio)
@@ -77,13 +77,13 @@ class TranscricaoAudio:
 
             if not list_audio_files:
                 progress_callback(
-                    0,
-                    "Erro: Nenhum arquivo .wav com '_completo' encontrado na pasta de áudio.",
+                    0, "Erro: Nenhum arquivo .wav com '_completo' encontrado."
                 )
                 logger.info(
                     "Nenhum arquivo .wav com '_completo' encontrado para processar."
                 )
-                return None
+                self.transcription_success = False
+                return
 
             total_files = len(list_audio_files)
             logger.info(
@@ -105,60 +105,44 @@ class TranscricaoAudio:
                     40 + int(i * (60 / total_files * 0.2)),
                     f"{progress_prefix} Transcrevendo áudio...",
                 )
-                # Transcrição principal sem alinhamento ou diarização aqui
                 result = self.model.transcribe(
                     audio,
                     batch_size=16,
                 )
 
-                # Debug: verificar estrutura do resultado
                 logger.debug(f"Chaves disponíveis no resultado: {list(result.keys())}")
-
-                # Não há mais passos de alinhamento ou diarização aqui.
-                # O resultado já contém os 'segments' que precisamos.
-
-                progress_callback(
-                    100,
-                    f"{progress_prefix} Transcrição finalizada para {audio_filename}!",
-                )
-
-                self._salvar_transcricao_pura(
-                    result, audio_filename
-                )  # Novo nome de método
+                self._salvar_transcricao_pura(result, audio_filename)
 
             progress_callback(100, "Todos os arquivos de áudio completos processados!")
-            return True
+            self.transcription_success = True
+            return
 
         except Exception as e:
             progress_callback(0, f"Erro fatal durante a transcrição: {str(e)}")
             logger.error(f"Erro fatal: {e}")
-            return None
+            self.transcription_success = False
+            return
 
     def _salvar_transcricao_pura(self, result, nome_arquivo_original):
         """Salva o resultado da transcrição pura em um arquivo de texto."""
         os.makedirs(self.destino_folder, exist_ok=True)
-        nome_txt = (
-            os.path.splitext(nome_arquivo_original)[0] + "_transcrito_bruto.txt"
-        )  # Sufixo mais claro
+        nome_txt = os.path.splitext(nome_arquivo_original)[0] + "_transcrito_bruto.txt"
         caminho_txt = os.path.join(self.destino_folder, nome_txt)
 
         with open(caminho_txt, "w", encoding="utf-8") as f:
-            # WhisperX sempre retorna resultado com 'segments'
             if "segments" in result and result["segments"]:
-                # Combinar texto de todos os segmentos
-                texto_completo = ""
-                for segment in result["segments"]:
-                    if "text" in segment:
-                        texto_completo += segment["text"].strip() + " "
-
+                texto_completo = " ".join(
+                    segment["text"].strip()
+                    for segment in result["segments"]
+                    if "text" in segment
+                )
                 if texto_completo:
                     f.write(texto_completo.strip())
                 else:
                     f.write("❌ Erro: Segmentos não contêm texto válido.")
-                    primeiro_seg = (
-                        result["segments"][0] if result["segments"] else "Vazio"
+                    logger.debug(
+                        f"Primeiro segmento: {result['segments'][0] if result['segments'] else 'Vazio'}"
                     )
-                    logger.debug(f"Primeiro segmento: {primeiro_seg}")
             else:
                 f.write("❌ Erro: Resultado não contém 'segments' ou está vazio.")
                 logger.debug(f"Chaves do resultado: {list(result.keys())}")

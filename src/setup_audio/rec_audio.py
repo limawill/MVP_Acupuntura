@@ -1,11 +1,10 @@
 import os
-from pydub import AudioSegment
 import numpy as np
 import sounddevice as sd
 from datetime import datetime
+from pydub import AudioSegment
 import scipy.io.wavfile as wavfile
-from ..tools.tools_system import SetupSystem
-from .preprocessador_audio import PreprocessadorAudio
+from src.tools.tools_system import SetupSystem
 
 
 system_control = SetupSystem()
@@ -54,12 +53,12 @@ class GravadorAudio:
             return
 
         self.pausado = True
-        
+
         # Salvar o áudio capturado até agora
         arquivo_salvo = self._salvar_audio()
         if arquivo_salvo:
             self.arquivos_gravados.append(arquivo_salvo)
-            
+
         # Limpar buffer para próxima gravação
         self.audio_data = []
         print("[⏸️] Gravação pausada e áudio salvo.")
@@ -68,7 +67,7 @@ class GravadorAudio:
         if not self.gravando:
             print("[!] Não está gravando para retomar.")
             return
-            
+
         if not self.pausado:
             print("[!] Não está pausado para retomar.")
             return
@@ -83,7 +82,7 @@ class GravadorAudio:
 
         self.gravando = False
         self.pausado = False
-        
+
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
@@ -98,7 +97,7 @@ class GravadorAudio:
         # Limpar dados após salvar
         self.audio_data = []
         print(f"[⏹️] Gravação parada. {len(self.arquivos_gravados)} arquivos salvos.")
-        
+
         # Opcionalmente combinar todos os arquivos em um só
         if len(self.arquivos_gravados) > 1:
             print("[🔄] Combinando arquivos...")
@@ -132,7 +131,7 @@ class GravadorAudio:
             return
 
         print(f"[🔄] Combinando {len(self.arquivos_gravados)} arquivos...")
-        
+
         # Carregar todos os arquivos
         segmentos = []
         for arquivo in self.arquivos_gravados:
@@ -142,7 +141,7 @@ class GravadorAudio:
                 print(f"[📂] Carregado: {os.path.basename(arquivo)}")
             else:
                 print(f"[❌] Arquivo não encontrado: {arquivo}")
-        
+
         if not segmentos:
             print("[❌] Nenhum segmento válido para combinar.")
             return
@@ -154,18 +153,19 @@ class GravadorAudio:
 
         # Salvar arquivo combinado
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        nome_combinado = f"{nome_paciente}_{timestamp}_completo.wav"
+        nome_tratado = system_control.text_underline(nome_paciente)
+        nome_combinado = f"{nome_tratado}_{timestamp}_completo.wav"
         caminho_combinado = os.path.join(self.output_dir, nome_combinado)
-        
+
         audio_combinado.export(caminho_combinado, format="wav")
         print(f"[✅] Áudio combinado salvo em: {caminho_combinado}")
-        
+
         # Opcional: remover arquivos individuais
         # for arquivo in self.arquivos_gravados:
         #     if os.path.exists(arquivo):
         #         os.remove(arquivo)
         #         print(f"[🗑️] Removido: {os.path.basename(arquivo)}")
-        
+
         return caminho_combinado
 
     def get_status(self):
@@ -176,22 +176,22 @@ class GravadorAudio:
             return "pausado"
         else:
             return "gravando"
-    
+
     def get_stats(self):
         """Retorna estatísticas da gravação atual."""
         return {
             "status": self.get_status(),
             "arquivos_gravados": len(self.arquivos_gravados),
             "duracao_buffer": len(self.audio_data) / self.fs if self.audio_data else 0,
-            "nome_paciente": self.nome_paciente
+            "nome_paciente": self.nome_paciente,
         }
-    
+
     def limpar_sessao(self):
         """Limpa todos os dados da sessão atual."""
         if self.gravando:
             print("[!] Pare a gravação antes de limpar a sessão.")
             return
-        
+
         self.audio_data = []
         self.arquivos_gravados = []
         self.nome_paciente = None

@@ -4,7 +4,7 @@ from src.gui.tela_inicial import Application
 from src.tools.tools_system import SetupSystem
 from src.tools.setup_folders import SetupFolders
 from src.tools.logging_config import setup_logging
-from src.tools.transcricao import TranscricaoAudio
+
 
 load_dotenv()
 
@@ -17,10 +17,9 @@ def main():
     """
     Main function to set up the project structure.
     """
+    tela = Application()
     setup = SetupFolders()
     tools_system = SetupSystem()
-    tela = Application()
-    transcricao = TranscricaoAudio()
 
     # Check if the project structure is correct
     if not setup.verifica_estutura():
@@ -31,7 +30,6 @@ def main():
     if tools_system.iniciar_ollama_servidor():
         # Proceed with the rest of the application logic
         tela.mainloop()
-        transcricao.carregar_modelo()
 
 
 if __name__ == "__main__":

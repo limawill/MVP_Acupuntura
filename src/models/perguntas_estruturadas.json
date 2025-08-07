@@ -1,0 +1,298 @@
+[
+  {
+    "pergunta": "Qual seu nome completo?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Qual é o gênero do paciente? (Masculino/Feminino/Outro - especificar)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Qual a idade atual do paciente?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Qual é a ocupação/profissão do paciente?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Quais são as principais queixas do paciente?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Descreva em detalhes os sintomas e problemas relatados pelo paciente.",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Qual a intensidade da dor na escala EVA (0-10)?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Quais medicamentos, fitoterápicos, florais ou outros produtos o paciente está usando atualmente?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Histórico de saúde do pai do paciente:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Histórico de saúde da família paterna:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Histórico de saúde da mãe do paciente:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Histórico de saúde da família materna:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Quantidade e qualidade dos alimentos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Horários das refeições",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Condições alimentares",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Preferências alimentares",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Apetite e paladar",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas digestivos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Quantidade e qualidade da ingestão",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Sede (frequência, intensidade)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Padrões de sono:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Frequência de calafrios:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Padrões de transpiração:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Histórico de febre:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Sensibilidade a calor/frio:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Características das fezes:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Características da urina:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Menarca/menstruação (para mulheres)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Menopausa (para mulheres)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas ginecológicos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas urinários",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Atividade sexual",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas respiratórios?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas cardiovasculares?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas endócrinos?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas neurológicos?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas emocionais na infância? (0-14 anos)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas emocionais na adolescência? (14-18 anos)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas emocionais na adulto jovem? (18-30 anos)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas emocionais na adulto? (30-60 anos)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Problemas emocionais na idoso? (>60 anos)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas osteomusculares?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Tem problemas dermatológicos, funcionais e alergias?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Pratica lazer/exercícios físicos?",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Observações sobre:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Cabelos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Olhos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Ouvidos",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Nariz",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Boca, lábios, dentes, gengiva, garganta",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Pele",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Expressão do rosto",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Descrição da língua (cor, saburra, formato)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Observações sobre os sistemas de órgãos segundo a MTC:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Vesícula Biliar (Den)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Rim (Bhen)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Bexiga (Penguang)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Intestinos (Dachang e Xiaochang)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Estômago (Med)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Baço (Pl)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Pulmão (Fat)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Coração (Zn)",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Observações sobre palpação de:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Cabeça/pescoço",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Mãos e pés",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Auscultação/Olfação",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Pressão arterial (medidas):",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Características da voz:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Padrão respiratório:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Características da tosse (se presente):",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Soluços e eructações:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Características do hálito:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Observações sobre excreções e secreções:",
+    "resposta": ""
+  },
+  {
+    "pergunta": "Outras Informações",
+    "resposta": ""
+  }
+]
