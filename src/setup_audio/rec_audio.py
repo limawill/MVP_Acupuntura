@@ -102,6 +102,36 @@ class GravadorAudio:
         if len(self.arquivos_gravados) > 1:
             print("[🔄] Combinando arquivos...")
             self._combinar_audio(nome_paciente)
+        else:
+            caminho_arquivo_original = self.arquivos_gravados[0]
+
+            # Verificar se o arquivo existe
+            if not os.path.exists(caminho_arquivo_original):
+                print(f"[❌] Arquivo único não encontrado: {caminho_arquivo_original}")
+                return None
+
+            print("[✅] Apenas um arquivo de áudio encontrado. Renomeando...")
+
+            # Gerar o novo nome com '_completo' e o timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nome_tratado = system_control.text_underline(nome_paciente)
+
+            # Separar o nome do arquivo da extensão para adicionar o sufixo
+            nome_base, extensao = os.path.splitext(
+                os.path.basename(caminho_arquivo_original)
+            )
+
+            novo_nome = f"{nome_tratado}_{timestamp}_completo.wav"
+            novo_caminho = os.path.join(self.output_dir, novo_nome)
+
+            # Renomear o arquivo
+            try:
+                os.rename(caminho_arquivo_original, novo_caminho)
+                print(f"[✅] Áudio renomeado e salvo em: {novo_caminho}")
+                return novo_caminho
+            except OSError as e:
+                print(f"[❌] Erro ao renomear o arquivo: {e}")
+                return None
 
     def _salvar_audio(self):
         if not self.audio_data:

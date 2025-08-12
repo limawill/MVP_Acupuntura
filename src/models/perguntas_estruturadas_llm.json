@@ -1,297 +1,281 @@
 {
   "01": {
-    "pergunta": "Qual seu nome completo?",
-    "resposta": ""
-  },
-  "02": {
-    "pergunta": "Qual é o gênero do paciente? (Masculino/Feminino/Outro - especificar)",
-    "resposta": ""
-  },
-  "03": {
-    "pergunta": "Qual a idade atual do paciente?",
-    "resposta": ""
-  },
-  "04": {
-    "pergunta": "Qual é a ocupação/profissão do paciente?",
-    "resposta": ""
-  },
-  "05": {
     "pergunta": "Quais são as principais queixas do paciente?",
     "resposta": ""
   },
-  "06": {
+  "02": {
     "pergunta": "Descreva em detalhes os sintomas e problemas relatados pelo paciente.",
     "resposta": ""
   },
-  "07": {
+  "03": {
     "pergunta": "Qual a intensidade da dor na escala EVA (0-10)?",
     "resposta": ""
   },
-  "08": {
+  "04": {
     "pergunta": "Quais medicamentos, fitoterápicos, florais ou outros produtos o paciente está usando atualmente?",
     "resposta": ""
   },
-  "09": {
+  "05": {
     "pergunta": "Histórico de saúde do pai do paciente:",
     "resposta": ""
   },
-  "10": {
+  "06": {
     "pergunta": "Histórico de saúde da família paterna:",
     "resposta": ""
   },
-  "11": {
+  "07": {
     "pergunta": "Histórico de saúde da mãe do paciente:",
     "resposta": ""
   },
-  "12": {
+  "08": {
     "pergunta": "Histórico de saúde da família materna:",
     "resposta": ""
   },
-  "13": {
+  "09": {
     "pergunta": "Quantidade e qualidade dos alimentos",
     "resposta": ""
   },
-  "14": {
+  "10": {
     "pergunta": "Horários das refeições",
     "resposta": ""
   },
-  "15": {
+  "11": {
     "pergunta": "Condições alimentares",
     "resposta": ""
   },
-  "16": {
+  "12": {
     "pergunta": "Preferências alimentares",
     "resposta": ""
   },
-  "17": {
+  "13": {
     "pergunta": "Apetite e paladar",
     "resposta": ""
   },
-  "18": {
+  "14": {
     "pergunta": "Problemas digestivos",
     "resposta": ""
   },
-  "19": {
+  "15": {
     "pergunta": "Quantidade e qualidade da ingestão",
     "resposta": ""
   },
-  "20": {
+  "16": {
     "pergunta": "Sede (frequência, intensidade)",
     "resposta": ""
   },
-  "21": {
+  "17": {
     "pergunta": "Padrões de sono:",
     "resposta": ""
   },
-  "22": {
+  "18": {
     "pergunta": "Frequência de calafrios:",
     "resposta": ""
   },
-  "23": {
+  "19": {
     "pergunta": "Padrões de transpiração:",
     "resposta": ""
   },
-  "24": {
+  "20": {
     "pergunta": "Histórico de febre:",
     "resposta": ""
   },
-  "25": {
+  "21": {
     "pergunta": "Sensibilidade a calor/frio:",
     "resposta": ""
   },
-  "26": {
+  "22": {
     "pergunta": "Características das fezes:",
     "resposta": ""
   },
-  "27": {
+  "23": {
     "pergunta": "Características da urina:",
     "resposta": ""
   },
-  "28": {
+  "24": {
     "pergunta": "Menarca/menstruação (para mulheres)",
     "resposta": ""
   },
-  "29": {
+  "25": {
     "pergunta": "Menopausa (para mulheres)",
     "resposta": ""
   },
-  "30": {
+  "26": {
     "pergunta": "Problemas ginecológicos",
     "resposta": ""
   },
-  "31": {
+  "27": {
     "pergunta": "Problemas urinários",
     "resposta": ""
   },
-  "32": {
+  "28": {
     "pergunta": "Atividade sexual",
     "resposta": ""
   },
-  "33": {
+  "29": {
     "pergunta": "Tem problemas respiratórios?",
     "resposta": ""
   },
-  "34": {
+  "30": {
     "pergunta": "Tem problemas cardiovasculares?",
     "resposta": ""
   },
-  "35": {
+  "31": {
     "pergunta": "Tem problemas endócrinos?",
     "resposta": ""
   },
-  "36": {
+  "32": {
     "pergunta": "Tem problemas neurológicos?",
     "resposta": ""
   },
-  "37": {
+  "33": {
     "pergunta": "Problemas emocionais na infância? (0-14 anos)",
     "resposta": ""
   },
-  "38": {
+  "34": {
     "pergunta": "Problemas emocionais na adolescência? (14-18 anos)",
     "resposta": ""
   },
-  "39": {
+  "35": {
     "pergunta": "Problemas emocionais na adulto jovem? (18-30 anos)",
     "resposta": ""
   },
-  "40": {
+  "36": {
     "pergunta": "Problemas emocionais na adulto? (30-60 anos)",
     "resposta": ""
   },
-  "41": {
+  "37": {
     "pergunta": "Problemas emocionais na idoso? (>60 anos)",
     "resposta": ""
   },
-  "42": {
+  "38": {
     "pergunta": "Tem problemas osteomusculares?",
     "resposta": ""
   },
-  "43": {
+  "39": {
     "pergunta": "Tem problemas dermatológicos, funcionais e alergias?",
     "resposta": ""
   },
-  "44": {
+  "40": {
     "pergunta": "Pratica lazer/exercícios físicos?",
     "resposta": ""
   },
-  "45": {
+  "41": {
     "pergunta": "Observações sobre:",
     "resposta": ""
   },
-  "46": {
+  "42": {
     "pergunta": "Cabelos",
     "resposta": ""
   },
-  "47": {
+  "43": {
     "pergunta": "Olhos",
     "resposta": ""
   },
-  "48": {
+  "44": {
     "pergunta": "Ouvidos",
     "resposta": ""
   },
-  "49": {
+  "45": {
     "pergunta": "Nariz",
     "resposta": ""
   },
-  "50": {
+  "46": {
     "pergunta": "Boca, lábios, dentes, gengiva, garganta",
     "resposta": ""
   },
-  "51": {
+  "47": {
     "pergunta": "Pele",
     "resposta": ""
   },
-  "52": {
+  "48": {
     "pergunta": "Expressão do rosto",
     "resposta": ""
   },
-  "53": {
+  "49": {
     "pergunta": "Descrição da língua (cor, saburra, formato)",
     "resposta": ""
   },
-  "54": {
+  "50": {
     "pergunta": "Observações sobre os sistemas de órgãos segundo a MTC:",
     "resposta": ""
   },
-  "55": {
+  "51": {
     "pergunta": "Vesícula Biliar (Den)",
     "resposta": ""
   },
-  "56": {
+  "52": {
     "pergunta": "Rim (Bhen)",
     "resposta": ""
   },
-  "57": {
+  "53": {
     "pergunta": "Bexiga (Penguang)",
     "resposta": ""
   },
-  "58": {
+  "54": {
     "pergunta": "Intestinos (Dachang e Xiaochang)",
     "resposta": ""
   },
-  "59": {
+  "55": {
     "pergunta": "Estômago (Med)",
     "resposta": ""
   },
-  "60": {
+  "56": {
     "pergunta": "Baço (Pl)",
     "resposta": ""
   },
-  "61": {
+  "57": {
     "pergunta": "Pulmão (Fat)",
     "resposta": ""
   },
-  "62": {
+  "58": {
     "pergunta": "Coração (Zn)",
     "resposta": ""
   },
-  "63": {
+  "59": {
     "pergunta": "Observações sobre palpação de:",
     "resposta": ""
   },
-  "64": {
+  "60": {
     "pergunta": "Cabeça/pescoço",
     "resposta": ""
   },
-  "65": {
+  "61": {
     "pergunta": "Mãos e pés",
     "resposta": ""
   },
-  "66": {
+  "62": {
     "pergunta": "Auscultação/Olfação",
     "resposta": ""
   },
-  "67": {
+  "63": {
     "pergunta": "Pressão arterial (medidas):",
     "resposta": ""
   },
-  "68": {
+  "64": {
     "pergunta": "Características da voz:",
     "resposta": ""
   },
-  "69": {
+  "65": {
     "pergunta": "Padrão respiratório:",
     "resposta": ""
   },
-  "70": {
+  "66": {
     "pergunta": "Características da tosse (se presente):",
     "resposta": ""
   },
-  "71": {
+  "67": {
     "pergunta": "Soluços e eructações:",
     "resposta": ""
   },
-  "72": {
+  "68": {
     "pergunta": "Características do hálito:",
     "resposta": ""
   },
-  "73": {
+  "69": {
     "pergunta": "Observações sobre excreções e secreções:",
     "resposta": ""
   },
-  "74": {
+  "70": {
     "pergunta": "Outras Informações",
     "resposta": ""
   }

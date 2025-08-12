@@ -2,10 +2,19 @@ import os
 import torch
 import logging
 import whisperx
+from pathlib import Path
 from dotenv import load_dotenv
+from tkinter import messagebox
+from src.gui.questionario import Questionario
+from src.tools.tools_system import SetupSystem
 from src.gui.loading_screen import LoadingScreen
+from src.tools.ia_preenche_forms import OllamaClient
+
 
 logger = logging.getLogger(__name__)
+
+setup = SetupSystem()
+llm_question = OllamaClient()
 
 
 class TranscricaoAudio:
@@ -25,6 +34,7 @@ class TranscricaoAudio:
         self.model = None
         self.loading_screen = None
         self.transcription_success = False  # Atributo para armazenar o resultado
+        self.questionario = str(os.getenv("MODELO_PERGUNTAS"))
 
         os.makedirs(self.destino_folder, exist_ok=True)
 
@@ -57,7 +67,7 @@ class TranscricaoAudio:
         compute_type = "float16" if device == "cuda" else "int8"
 
         try:
-            progress_callback(10, "Carregando modelo WhisperX para transcrição...")
+            progress_callback(10, "Carregando modelo para transcrição...")
             self.model = whisperx.load_model(
                 self.model_name,
                 device=device,
@@ -148,3 +158,23 @@ class TranscricaoAudio:
                 logger.debug(f"Chaves do resultado: {list(result.keys())}")
 
         logger.info(f"Transcrição salva em: {caminho_txt}")
+        if setup.verificar_arquivo_existe(caminho_txt):
+
+            logger.info(f"Arquivo {caminho_txt} verificado e existente.")
+
+            key_redis_llm = llm_question.inicio_llm(
+                self.key_redis,
+                Path(caminho_txt),
+                Path(self.questionario),
+            )
+
+            questao = Questionario(key_redis_llm, self.loading_screen)
+            questao.gera_tela_questionario()
+
+        else:
+            logger.error(f"Arquivo {caminho_txt} não encontrado após a gravação.")
+            messagebox.showerror(
+                "Erro", "Falha ao salvar a transcrição. O arquivo não foi encontrado."
+            )
+            # Fecha a aplicação
+            return False

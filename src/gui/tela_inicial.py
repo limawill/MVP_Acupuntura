@@ -2,6 +2,7 @@ import logging
 import platform
 import tkinter as tk
 from tkinter import messagebox, ttk
+from src.gui.questionario import Questionario
 from src.tools.transcricao import TranscricaoAudio
 from src.setup_audio.rec_audio import GravadorAudio
 from src.tools.redis_connection import RedisConnection
@@ -205,12 +206,14 @@ class Application(tk.Tk):
     def parar_gravacao(self):
         nome_paciente = self.nome_entry.get().strip()
         sexo_paciente = self.sexo_var.get()
+        idade_paciente = self.idade_entry.get().strip()
         profissao_paciente = self.profissao_entry.get().strip()
 
         dados_paciente = {
-            "nome": nome_paciente,
-            "sexo": sexo_paciente,
-            "profissao": profissao_paciente,
+            "Qual seu nome completo?": nome_paciente,
+            "Qual é o gênero do paciente?": sexo_paciente,
+            "Qual a idade atual do paciente?": idade_paciente,
+            "Qual é a ocupação/profissão do paciente?": profissao_paciente,
         }
 
         self.gravador.parar_gravacao(self.nome_entry.get().strip())
@@ -222,31 +225,17 @@ class Application(tk.Tk):
         self.btn_retomar.config(state="disabled")
         self.btn_parar.config(state="disabled")
         self.nome_entry.delete(0, tk.END)
+        self.idade_entry.delete(0, tk.END)
         self.profissao_entry.delete(0, tk.END)
         self.sexo_combobox.set("Selecione...")
+        self.nome_entry.focus()
 
         key = redis.set_value(dados_paciente)
         logger.info(f"Dados salvos no Redis com chave: {key}")
         if not key:
             self.status_label.config(text="Erro ao salvar dados no Redis.", fg="red")
             return
-
-        if transcricao.carregar_modelo(key):
-            logger.info("Modelo carregado e transcrição com sucesso")
-            self.status_label.config(
-                text="Transcrição iniciada com sucesso!", fg="green"
-            )
-            from src.gui.questionario import carregar_perguntas
-
-            carregar_perguntas()
-
-            self.destroy()
-
-        else:
-            logger.error("Erro ao carregar modelo ou iniciar transcrição")
-            self.status_label.config(text="Erro ao iniciar transcrição.", fg="red")
-            messagebox.showerror(
-                "Erro de Transcrição", "Erro na transcrição ou processamento do áudio."
-            )
-            # Fechar a janela
+        try:
+            transcricao.carregar_modelo(key)
+        finally:
             self.destroy()

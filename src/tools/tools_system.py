@@ -3,6 +3,7 @@ import time
 import logging
 import requests
 import subprocess
+from pathlib import Path
 from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,19 @@ class SetupSystem:
         """
         logger.info(f"[INFO] Substituindo espaços por underlines no texto: {text}")
         return text.replace(" ", "_")
+
+    def verificar_arquivo_existe(self, caminho: str) -> bool:
+        """
+        Verifica se um arquivo existe no caminho especificado usando pathlib.
+
+        Args:
+            caminho (str): O caminho completo ou relativo do arquivo a ser verificado.
+
+        Returns:
+            bool: True se o arquivo existe, False caso contrário.
+        """
+        caminho_path = Path(caminho)
+        return caminho_path.is_file()
 
     def verificar_ollama_online(self, timeout=5):
         """

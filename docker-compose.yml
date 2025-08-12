@@ -21,6 +21,26 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_service
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    restart: unless-stopped
+    command: >
+      sh -c "ollama serve &
+             echo 'Aguardando o servidor Ollama...';
+             while ! ollama list; do sleep 1; done;
+             echo 'Servidor Ollama está pronto.';
+             if ! ollama list | grep deepseek-r1; then
+               echo 'Baixando o modelo deepseek-r1...';
+               ollama pull deepseek-r1;
+             fi;
+             wait -n;"
+
 volumes:
   postgres_data:
   redis_data:
+  ollama_models:
